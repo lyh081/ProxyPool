@@ -27,7 +27,7 @@ class RedisClient(object):
             print('代理不符合规范', proxy, '丢弃')
             return
         if not self.db.zscore(REDIS_KEY, proxy):
-            return self.db.zadd(REDIS_KEY, score, proxy)
+            return self.db.zadd(REDIS_KEY, {proxy: score})  # 3.x版本中需传入dict
     
     def random(self):
         """
@@ -53,7 +53,7 @@ class RedisClient(object):
         score = self.db.zscore(REDIS_KEY, proxy)
         if score and score > MIN_SCORE:
             print('代理', proxy, '当前分数', score, '减1')
-            return self.db.zincrby(REDIS_KEY, proxy, -1)
+            return self.db.zincrby(REDIS_KEY, -1, proxy)  # amount和value互换
         else:
             print('代理', proxy, '当前分数', score, '移除')
             return self.db.zrem(REDIS_KEY, proxy)
